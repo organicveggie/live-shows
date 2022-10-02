@@ -1,0 +1,113 @@
+syntax = "proto3";
+package models;
+
+option go_package = "github.com/organicveggie/live-shows/models";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
+
+enum SetType {
+  SET_TYPE_UNKNOWN = 0;
+  SET = 1;
+  ENCORE = 2;
+}
+
+message Show {
+  string band = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  Date date = 2 [(validate.rules).message.required = true];
+  Location location = 3 [(validate.rules).message.required = true];
+  string setlist = 4;
+  string notes = 5;
+  google.protobuf.UInt32Value etree_id = 6 [(validate.rules).uint32.gt = 0];
+}
+
+message Checksum {
+  string name = 1 [(validate.rules).string = { min_len: 1, max_len: 50 }];
+  repeated FileChecksum files = 2;
+}
+
+message Date {
+  uint32 year = 1 [(validate.rules).uint32.gt = 0];
+  uint32 month = 2 [(validate.rules).uint32 = { gt: 0, lt: 13 }];
+  uint32 day = 3 [(validate.rules).uint32 = { gt: 0, lt: 32 }];
+}
+
+message FileChecksum {
+  string filename = 1 [(validate.rules).string.pattern =
+                           "^[a-zA-Z0-9](?:[a-zA-Z0-9 ._-]*[a-zA-Z0-9])?\\.[a-zA-Z0-9_-]+$"];
+  string value = 2
+      [(validate.rules).string = { min_len: 1, max_len: 1024, pattern: "^[0-9a-zA-Z]+$" }];
+}
+
+message Location {
+  string name = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  string city = 2 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  string state = 3;
+  string country = 4 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+}
+
+message Source {
+  string summary = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  repeated Track tracks = 2;
+  repeated Checksum checksums = 3;
+  string notes = 4;
+  uint64 etree_id = 5 [(validate.rules).uint64.gt = 0];
+}
+
+message Track {
+  uint32 track_no = 1 [(validate.rules).uint32 = { gt: 0, lt: 999 }];
+  string name = 2 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+}
+
+message EtreeShow {
+  message Checksum {
+    string name = 1 [(validate.rules).string = { min_len: 1, max_len: 50 }];
+    string value = 2
+        [(validate.rules).string = { min_len: 1, max_len: 1024, pattern: "(?i)^[0-9a-z]+$" }];
+    uint64 etree_id = 3 [(validate.rules).uint32.gt = 0];
+  }
+
+  message Disc {
+    uint32 disc_no = 1 [(validate.rules).uint32 = { gt: 0, lt: 99 }];
+    repeated Track tracks = 2 [(validate.rules).repeated = { min_items: 1 }];
+  }
+
+  message Set {
+    uint32 set_no = 1 [(validate.rules).uint32.gt = 0];
+    repeated Song songs = 2 [(validate.rules).repeated = { min_items: 1 }];
+  }
+
+  message SetList {
+    repeated Set sets = 1 [(validate.rules).repeated = { min_items: 1 }];
+    string comment = 2;
+  }
+
+  message Song {
+    string name = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  }
+
+  message Source {
+    uint64 id = 1 [(validate.rules).uint64.gt = 0];
+    Date date_circulated = 2;
+    Date date_added = 3;
+    string summary = 4 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+    repeated Disc discs = 5 [(validate.rules).repeated = { min_items: 1 }];
+  }
+
+  message Track {
+    SetType set_type = 1 [(validate.rules).enum.defined_only = true];
+    uint32 set_no = 2 [(validate.rules).uint32 = { gt: 0, lt: 10 }];
+    uint32 track_no = 3 [(validate.rules).uint32 = { gt: 0, lt: 999 }];
+    string name = 4 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+    string filename = 5 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+    repeated Checksum checksums = 6;
+  }
+
+  string band = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  Date date = 2 [(validate.rules).message.required = true];
+  uint64 id = 3 [(validate.rules).uint64.gt = 0];
+  Location location = 4 [(validate.rules).message.required = true];
+  SetList setlist = 5 [(validate.rules).message.required = true];
+  Source source = 6 [(validate.rules).message.required = true];
+}

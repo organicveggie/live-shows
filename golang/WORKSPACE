@@ -1,0 +1,55 @@
+workspace(name = "live_shows")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# http_archive(
+#     name = "io_bazel_rules_go",
+#     sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
+#     urls = [
+#         "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+#         "https://github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+#     ],
+# )
+
+# http_archive(
+#     name = "bazel_gazelle",
+#     sha256 = "efbbba6ac1a4fd342d5122cbdfdb82aeb2cf2862e35022c752eaddffada7c3f3",
+#     urls = [
+#         "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.27.0/bazel-gazelle-v0.27.0.tar.gz",
+#         "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.27.0/bazel-gazelle-v0.27.0.tar.gz",
+#     ],
+# )
+
+# load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+# load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+### These are all included by envoyproxy/protoc-gen-validate through the call to pgv_dependency_imports
+#
+# go_rules_dependencies()
+# go_register_toolchains(version = "1.19.1")
+# gazelle_dependencies()
+
+###
+### envoyproxy/protoc-gen-validate
+###
+http_archive(
+    name = "com_envoyproxy_protoc_gen_validate",
+    sha256 = "eb4d4f98ef612997ef9762386df200986eaebfee2db45bbf13941d83a81c0a09",
+    strip_prefix = "protoc-gen-validate-{}".format("0.6.12"),
+    urls = ["https://github.com/envoyproxy/protoc-gen-validate/archive/v{}.tar.gz".format("0.6.12")],
+)
+
+# Load the dependencies of PGV. This is required for the next step to work.
+load("@com_envoyproxy_protoc_gen_validate//bazel:repositories.bzl", "pgv_dependencies")
+
+pgv_dependencies()
+
+# # Perform any necessary actions to initialize dependencies.
+load("@com_envoyproxy_protoc_gen_validate//bazel:dependency_imports.bzl", "pgv_dependency_imports")
+
+pgv_dependency_imports()
+
+load("@com_envoyproxy_protoc_gen_validate//:dependencies.bzl", "go_third_party")
+
+# gazelle:repository_macro dependencies.bzl%go_third_party
+go_third_party()
