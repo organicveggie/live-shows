@@ -1,0 +1,50 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:compiler.bzl", "go_proto_compiler")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+
+proto_library(
+    name = "protos_proto",
+    srcs = ["shows.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_envoyproxy_protoc_gen_validate//validate:validate_proto",
+        "@com_google_protobuf//:timestamp_proto",
+        "@com_google_protobuf//:wrappers_proto",
+    ],
+)
+
+# go_proto_library(
+#     name = "protos_go_proto_old",
+#     importpath = "github.com/organicveggie/live-shows/protos",
+#     proto = ":protos_proto",
+#     visibility = ["//visibility:public"],
+#     deps = ["@com_envoyproxy_protoc_gen_validate//validate:validate_go_proto"],
+# )
+
+go_proto_compiler(
+    name = "pgv_plugin_go",
+    options = ["lang=go"],
+    plugin = "@com_envoyproxy_protoc_gen_validate//:protoc-gen-validate",
+    suffix = ".pb.validate.go",
+    valid_archive = False,
+)
+
+go_proto_library(
+    name = "protos_go_proto",
+    compilers = [
+        "@io_bazel_rules_go//proto:go_proto",
+        "pgv_plugin_go",
+    ],
+    importpath = "github.com/organicveggie/live-shows/protos",
+    protos = [":protos_proto"],
+    visibility = ["//visibility:public"],
+    deps = ["@com_envoyproxy_protoc_gen_validate//validate:go_default_library"],
+)
+
+go_library(
+    name = "protos",
+    embed = [":protos_go_proto"],
+    importpath = "github.com/organicveggie/live-shows/protos",
+    visibility = ["//visibility:public"],
+)

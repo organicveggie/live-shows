@@ -1,7 +1,7 @@
 syntax = "proto3";
-package models;
+package organicveggie.live_shows.protos;
 
-option go_package = "github.com/organicveggie/live-shows/models";
+option go_package = "github.com/organicveggie/live-shows/protos";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
@@ -44,7 +44,7 @@ message Location {
   string name = 1 [(validate.rules).string = { min_len: 1, max_len: 100 }];
   string city = 2 [(validate.rules).string = { min_len: 1, max_len: 100 }];
   string state = 3;
-  string country = 4 [(validate.rules).string = { min_len: 1, max_len: 100 }];
+  string country = 4;
 }
 
 message Source {
@@ -65,7 +65,7 @@ message EtreeShow {
     string name = 1 [(validate.rules).string = { min_len: 1, max_len: 50 }];
     string value = 2
         [(validate.rules).string = { min_len: 1, max_len: 1024, pattern: "(?i)^[0-9a-z]+$" }];
-    uint64 etree_id = 3 [(validate.rules).uint32.gt = 0];
+    uint32 etree_id = 3 [(validate.rules).uint32.gt = 0];
   }
 
   message Disc {
