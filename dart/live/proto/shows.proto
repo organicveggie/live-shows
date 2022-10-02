@@ -1,0 +1,109 @@
+syntax = "proto3";
+package models;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+enum SetType {
+  SET_TYPE_UNKNOWN = 0;
+  SET = 1;
+  ENCORE = 2;
+}
+
+message Show {
+  string band = 1;
+  Date date = 2;
+  Location location = 3;
+  string setlist = 4;
+  string notes = 5;
+  google.protobuf.UInt32Value etree_id = 6;
+}
+
+message Checksum {
+  string name = 1;
+  repeated FileChecksum files = 2;
+}
+
+message Date {
+  uint32 year = 1;
+  uint32 month = 2;
+  uint32 day = 3;
+}
+
+message FileChecksum {
+  string filename = 1;
+  string value = 2
+;
+}
+
+message Location {
+  string name = 1;
+  string city = 2;
+  string state = 3;
+  string country = 4;
+}
+
+message Source {
+  string summary = 1;
+  repeated Track tracks = 2;
+  repeated Checksum checksums = 3;
+  string notes = 4;
+  uint64 etree_id = 5;
+}
+
+message Track {
+  uint32 track_no = 1;
+  string name = 2;
+}
+
+message EtreeShow {
+  message Checksum {
+    string name = 1;
+    string value = 2
+;
+    uint64 etree_id = 3;
+  }
+
+  message Disc {
+    uint32 disc_no = 1;
+    repeated Track tracks = 2;
+  }
+
+  message Set {
+    uint32 set_no = 1;
+    repeated Song songs = 2;
+  }
+
+  message SetList {
+    repeated Set sets = 1;
+    string comment = 2;
+  }
+
+  message Song {
+    string name = 1;
+  }
+
+  message Source {
+    uint64 id = 1;
+    Date date_circulated = 2;
+    Date date_added = 3;
+    string summary = 4;
+    repeated Disc discs = 5;
+  }
+
+  message Track {
+    SetType set_type = 1;
+    uint32 set_no = 2;
+    uint32 track_no = 3;
+    string name = 4;
+    string filename = 5;
+    repeated Checksum checksums = 6;
+  }
+
+  string band = 1;
+  Date date = 2;
+  uint64 id = 3;
+  Location location = 4;
+  SetList setlist = 5;
+  Source source = 6;
+}
